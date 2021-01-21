@@ -1,27 +1,13 @@
 version: 2.1
-workflows:
-  orangefox:
-    jobs:
-      - build:
-          context: orangefox
 
-jobs:
-  build:
-    working_directory: ~/project
-    docker:
-      - image: circleci/android:api-30-ndk
-    environment:
-      DEBIAN_FRONTEND: noninteractive
-      FOX_10_BRANCH: fox_10.0
-      TWRP_10_BRANCH: twrp-10.0
-      URL_RECOVERY: https://gitlab.com/OrangeFox/bootable/Recovery.git
-      URL_VENDOR: https://gitlab.com/OrangeFox/vendor/recovery.git
-      MANIFEST_BUILD_DIR: build
+commands:
+  check_system:
     steps:
-      - checkout
       - run:
           name: Check system
           command: df -h && echo "Cores = $(nproc --all)"
+  setup_env:
+    steps:
       - run:
           name: Setup environment
           command: |
@@ -34,6 +20,8 @@ jobs:
             git clone https://gitlab.com/teguhpunya-projects/scripts.git --depth=1 --branch circleci
             sudo -s bash scripts/setup/android_build_env.sh >/dev/null
             sudo -s bash scripts/setup/install_android_sdk.sh >/dev/null
+  setup_repos:
+    steps:
       - run:
           name: Setup repos
           command: |
@@ -51,9 +39,39 @@ jobs:
             git clone --depth=1 $URL_RECOVERY -b $FOX_10_BRANCH bootable/recovery >/dev/null
             git clone --depth=1 $URL_VENDOR -b $FOX_10_BRANCH vendor/recovery >/dev/null
             git clone https://pop:$GITLAB_PASS@gitlab.com/Teguhpunya/android_device_xiaomi_ginkgo.git -b a10 --depth=1 device/xiaomi/ginkgo
+  build:
+    steps:
       - run:
           name: Build
           command: ./device/xiaomi/ginkgo/teskrip.sh >/dev/null
+
+executors:
+  machine-executor:
+    machine:
+      image: ubuntu-2004:202010-01
+    working_directory: ~/project
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+      FOX_10_BRANCH: fox_10.0
+      TWRP_10_BRANCH: twrp-10.0
+      URL_RECOVERY: https://gitlab.com/OrangeFox/bootable/Recovery.git
+      URL_VENDOR: https://gitlab.com/OrangeFox/vendor/recovery.git
+      MANIFEST_BUILD_DIR: build
+
+jobs:
+  build-with-machine:
+    executor: machine-executor
+    steps:
+      - checkout
+      - check_system
+      - setup_env
+      - setup_repos
+      - build
       - store_artifacts:
           path: out/target/product/ginkgo/OrangeFox-R11.0_1-Test-ginkgo.zip
           destination: OrangeFox-R11.0_1-Test-ginkgo.zip
+
+workflows:
+  build-with-machine:
+    jobs:
+      - build-with-machine
