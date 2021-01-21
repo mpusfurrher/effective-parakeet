@@ -26,6 +26,11 @@ jobs:
           name: Setup environment
           command: |
             sudo apt-get --quiet update && sudo apt-get --quiet install git aria2 apt-utils -y
+            echo "Configuring git"
+            git config --global user.email "mpusfurrher@gmail.com"
+            git config --global user.name "Mpusfurrher"
+            git config --global credential.helper "cache --timeout=7200"
+            echo "git identity setup successfully!"
             git clone https://gitlab.com/teguhpunya-projects/scripts.git --depth=1 --branch circleci
             sudo -s bash scripts/setup/android_build_env.sh >/dev/null
             sudo -s bash scripts/setup/install_android_sdk.sh >/dev/null
