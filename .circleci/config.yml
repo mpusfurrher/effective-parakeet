@@ -28,7 +28,7 @@ jobs:
           name: Clone
           command: |
             git clone https://gitlab.com/Teguhpunya/sync.git
-            ./sync/get_fox_10.sh >/dev/null
+            bash sync/get_fox_10.sh >/dev/null
             git clone https://pop:$GITLAB_PASS@gitlab.com/Teguhpunya/android_device_xiaomi_ginkgo.git -b a10 --depth=1 fox_10.0/device/xiaomi/ginkgo
       - run:
           name: Build
