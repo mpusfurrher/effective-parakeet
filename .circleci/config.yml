@@ -12,6 +12,10 @@ jobs:
       - image: cimg/android:29.0.0
     environment:
       DEBIAN_FRONTEND: noninteractive
+      FOX_10_BRANCH: fox_10.0
+      TWRP_10_BRANCH: twrp-10.0
+      URL_RECOVERY: https://gitlab.com/OrangeFox/bootable/Recovery.git
+      URL_VENDOR: https://gitlab.com/OrangeFox/vendor/recovery.git
     steps:
       - checkout
       - run:
@@ -25,12 +29,19 @@ jobs:
             bash scripts/setup/android_build_env.sh >/dev/null
             bash scripts/setup/install_android_sdk.sh >/dev/null
       - run:
-          name: Clone
+          name: Setup repos
           command: |
-            git clone https://gitlab.com/Teguhpunya/sync.git
-            mv sync/patch-manifest.diff ./patch-manifest.diff
-            bash sync/get_fox_10.sh . >/dev/null
             echo "Current dir = $(pwd)"
+            repo init --depth=1 -u git://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b $TWRP_10_BRANCH
+            repo sync -j$(nproc --all) --force-sync >/dev/null
+            git clone https://gitlab.com/Teguhpunya/sync.git --depth=1
+            mv sync/patch-manifest.diff ./patch-manifest.diff
+            echo "Current dir = $(pwd)"
+            patch -p1 < patch-manifest.diff
+            rm -rf bootable/recovery
+            rm -rf vendor/recovery
+            git clone --depth=1 $URL_RECOVERY -b $FOX_10_BRANCH bootable/recovery >/dev/null
+            git clone --depth=1 $URL_VENDOR -b $FOX_10_BRANCH vendor/recovery >/dev/null
             git clone https://pop:$GITLAB_PASS@gitlab.com/Teguhpunya/android_device_xiaomi_ginkgo.git -b a10 --depth=1 device/xiaomi/ginkgo
       - run:
           name: Build
