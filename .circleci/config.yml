@@ -9,7 +9,7 @@ jobs:
   build:
     working_directory: ~/project
     docker:
-      - image: cimg/android:29.0.0
+      - image: circleci/android:api-30-ndk
     environment:
       DEBIAN_FRONTEND: noninteractive
       FOX_10_BRANCH: fox_10.0
