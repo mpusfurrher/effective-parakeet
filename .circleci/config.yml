@@ -16,7 +16,7 @@ jobs:
       - checkout
       - run:
           name: Check system
-          command: df -h && echo "Cores: $(nproc --all)"
+          command: df -h && echo "Cores = $(nproc --all)"
       - run:
           name: Setup environment
           command: |
