@@ -28,11 +28,12 @@ jobs:
           name: Clone
           command: |
             git clone https://gitlab.com/Teguhpunya/sync.git
-            bash sync/get_fox_10.sh >/dev/null
-            git clone https://pop:$GITLAB_PASS@gitlab.com/Teguhpunya/android_device_xiaomi_ginkgo.git -b a10 --depth=1 fox_10.0/device/xiaomi/ginkgo
+            bash sync/get_fox_10.sh
+            cd ~/project/fox_10.0
+            git clone https://pop:$GITLAB_PASS@gitlab.com/Teguhpunya/android_device_xiaomi_ginkgo.git -b a10 --depth=1 device/xiaomi/ginkgo
       - run:
           name: Build
-          command: cd fox_10.0 && ./device/xiaomi/ginkgo/teskrip.sh >/dev/null
+          command: cd ~/project/fox_10.0 && ./device/xiaomi/ginkgo/teskrip.sh >/dev/null
       - store_artifacts:
           path: fox_10.0/out/target/product/ginkgo/OrangeFox-R11.0_1-Test-ginkgo.zip
           destination: OrangeFox-R11.0_1-Test-ginkgo.zip
