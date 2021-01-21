@@ -16,6 +16,7 @@ jobs:
       TWRP_10_BRANCH: twrp-10.0
       URL_RECOVERY: https://gitlab.com/OrangeFox/bootable/Recovery.git
       URL_VENDOR: https://gitlab.com/OrangeFox/vendor/recovery.git
+      MANIFEST_BUILD_DIR: build
     steps:
       - checkout
       - run:
@@ -36,8 +37,10 @@ jobs:
             repo sync -j$(nproc --all) --force-sync >/dev/null
             git clone https://gitlab.com/Teguhpunya/sync.git --depth=1
             mv sync/patch-manifest.diff ./patch-manifest.diff
+            cd $MANIFEST_BUILD_DIR
             echo "Current dir = $(pwd)"
             patch -p1 < patch-manifest.diff
+            cd .. && echo "Current dir = $(pwd)"
             rm -rf bootable/recovery
             rm -rf vendor/recovery
             git clone --depth=1 $URL_RECOVERY -b $FOX_10_BRANCH bootable/recovery >/dev/null
